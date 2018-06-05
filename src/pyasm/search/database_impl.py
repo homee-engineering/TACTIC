@@ -1836,6 +1836,7 @@ class PostgresImpl(BaseSQLDatabaseImpl):
         db_resource = DbResource.get_default(database)
 
         create = 'createdb %s -E UNICODE "%s"' % (my._get_db_info(db_resource), database)
+        print "create command: %s" % create
         cmd = os.popen(create)
         result = cmd.readlines()
         # Psql 8.3 doesn't have outputs on creation
