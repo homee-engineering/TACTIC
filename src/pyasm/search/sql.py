@@ -1078,6 +1078,10 @@ class DbResource(Base):
             if not my.user:
                 my.user = "root" 
         elif my.vendor == 'PostgreSQL':
+            if os.getenv('PGHOST'):
+                my.host = os.getenv('PGHOST')
+            if os.getenv('PGPASSWORD'):
+                my.password = os.getenv('PGPASSWORD')
             if not my.user:
                 my.user = "postgres" 
             if not my.port:
