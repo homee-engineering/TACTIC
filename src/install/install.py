@@ -216,7 +216,7 @@ class Install:
         my.tactic_install_dir = None
         my.tmp_dir = None
         my.tactic_site_dir = None
-        my.tactic_apache_user = 'apache'
+        my.tactic_apache_user = 'tacticadmin'
         my.apache_conf_path = None
         my.database_type = database_type
         my.port_num = port_num
