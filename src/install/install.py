@@ -274,7 +274,7 @@ class Install:
 
         my.create_temp_directory()
 
-        my.change_directory_ownership()
+        # my.change_directory_ownership()
 
         my.install_win32_service()
 
