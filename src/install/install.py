@@ -185,24 +185,25 @@ class Install:
     def change_directory_ownership(my):
         import getpass
         if os.name != 'nt':
+            script_user = getpass.getuser()
             print "----- SYSTEM USER -----"
-            print getpass.getuser()
+            print script_user
             print "Changing directory ownership of temp and data directories"
             # set the owner of tmp_dir and site_dir
-            os.system('sudo chown -R %s \"%s\"'\
-                %(my.tactic_apache_user, my.tmp_dir))
+            os.system('chown -R %s \"%s\"'\
+                %(script_user, my.tmp_dir))
 
-            os.system('sudo chown -R %s \"%s\"'\
-                %(my.tactic_apache_user, my.tactic_site_dir))
+            os.system('chown -R %s \"%s\"'\
+                %(script_user, my.tactic_site_dir))
 
-            os.system('sudo chown -R %s \"%s\"'\
-                %(my.tactic_apache_user, my.tactic_data_dir))
+            os.system('chown -R %s \"%s\"'\
+                %(script_user, my.tactic_data_dir))
 
             os.system('sudo chown -R %s \"%s/assets\"'\
-                %(my.tactic_apache_user, my.tactic_base_dir))
+                %(script_user, my.tactic_base_dir))
 
             os.system('sudo chown -R %s \"%s\"'\
-                %(my.tactic_apache_user, my.tactic_src_dir))
+                %(script_user, my.tactic_src_dir))
 
     def install_win32_service(my):
         if os.name == 'nt':
