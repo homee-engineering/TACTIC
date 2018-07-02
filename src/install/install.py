@@ -199,10 +199,10 @@ class Install:
             os.system('chown -R %s \"%s\"'\
                 %(script_user, my.tactic_data_dir))
 
-            os.system('sudo chown -R %s \"%s/assets\"'\
+            os.system('chown -R %s \"%s/assets\"'\
                 %(script_user, my.tactic_base_dir))
 
-            os.system('sudo chown -R %s \"%s\"'\
+            os.system('chown -R %s \"%s\"'\
                 %(script_user, my.tactic_src_dir))
 
     def install_win32_service(my):
