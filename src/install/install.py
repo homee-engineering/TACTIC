@@ -185,7 +185,8 @@ class Install:
     def change_directory_ownership(my):
         import getpass
         if os.name != 'nt':
-            script_user = getpass.getuser()
+            # script_user = getpass.getuser()
+            script_user = my.tactic_apache_user
             print "----- SYSTEM USER -----"
             print script_user
             print "Changing directory ownership of temp and data directories"
