@@ -233,6 +233,7 @@ class Install:
 
         my.print_header()
 
+        # CHECKPOINT
         # verification
         try:
             if install_db:
@@ -610,7 +611,6 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         f = open("%s/tactic_paths.py" % python_install_dir, "a")
         f.write("\n")
         f.write("TACTIC_INSTALL_DIR='%s'\n" % my.tactic_install_dir)
-        #f.write("TACTIC_SITE_DIR='%s'\n" % my.tactic_site_dir)
         f.write("TACTIC_SITE_DIR=''\n")
         f.write("TACTIC_DATA_DIR='%s'\n" % my.tactic_data_dir)
         f.write("\n")
@@ -627,61 +627,7 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
                 print "Permission error to create directories"
                 if os.name =='nt':
                     print "Try to run your cmd.exe as Administrator by Shift+right clicking on the Cmd.exe icon."
-                raise InstallException(e)
-
-        # set the tactic user
-        # Disabling until this actuall has meaning
-        """
-        if not os.name == "nt":
-            default_tactic_user = "apache"
-            default_tactic_group = "apache"
-            print
-            print "Please enter TACTIC user:"
-            print
-            my.tactic_user = raw_input("(%s) -> " % default_tactic_user)
-            if not my.tactic_user:
-                my.tactic_user = default_install_dir
-            my.tactic_group = my.tactic_user
-       
-
-
-
-        # copy all of the files from the template to the sites directory
-        for root, dirs, files in os.walk("template"):
-            root = root.replace("\\","/")
-
-            # ignore ".svn"
-            if root.find("/.svn") != -1:
-                continue
-
-            # create root directory
-            old = root
-            new = old.replace("template", my.tactic_site_dir)
-            dirname = os.path.dirname(new)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-
-            # go through each and copy
-            for file in files:
-                # ignore compiled python files
-                if file.endswith(".pyc") or file.startswith('.'):
-                    continue
-
-                old = "%s/%s" % (root, file)
-                new = old.replace("template", my.tactic_site_dir)
-
-                dirname = os.path.dirname(new)
-                if not os.path.exists(dirname):
-                    os.makedirs(dirname)
-
-                shutil.copyfile(old, new)
-                # FIXME: this does not work ... need uid and gid
-                #if not os.name == "nt":
-                #    os.chown(new,my.tactic_user,my.tactic_group)
-
-
-        """
-        
+                raise InstallException(e)        
 
         my.tactic_license = 'tactic-license.xml'
         if os.name != 'nt':
@@ -690,10 +636,6 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         else:
             my.apache_conf = 'tactic_win32.conf'
             my.tactic_conf = 'tactic_win32-conf.xml'
-
-
-
-
 
 
         try:
