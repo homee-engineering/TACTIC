@@ -287,7 +287,7 @@ class Install:
 
 
         if install_db == False:
-            print "TACTIC setup successful.  Next, the TACTIC database needs to be configured."
+            print "TACTIC setup successful.  The database was not installed."
             return
 
         # dynamically load modules now that we know where they are
