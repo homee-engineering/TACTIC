@@ -103,28 +103,31 @@ class Install:
         line = '\n'.join(lines)
         
         if line.find('connected to database') != -1:
-            print "Database '%s' already exists. Do you want to drop the database '%s' and continue?, If you choose 'y', It will be backed up to the current directory.  (y/n)" %(project_code, project_code)
-            print
-            answer = raw_input("(n) -> " )
-            if answer in ['y','Y']:
-                # can't read from config file at this point, just make these default assumptions
-                db_host = 'localhost'
-                db_user = 'postgres'
-                backup_name = 'sthpw_backup.sql'
-                current_dir = my.get_current_dir()
+            return True
+            # print "Database '%s' already exists. Do you want to drop the database '%s' and continue?, If you choose 'y', It will be backed up to the current directory.  (y/n)" %(project_code, project_code)
+            # print
+            # answer = raw_input("(n) -> " )
+            # if answer in ['y','Y']:
+            #     # can't read from config file at this point, just make these default assumptions
+            #     db_host = 'localhost'
+            #     db_user = 'postgres'
+            #     backup_name = 'sthpw_backup.sql'
+            #     current_dir = my.get_current_dir()
                 
-                backup_cmd = 'pg_dump -h %s -U %s -p %s --clean sthpw > %s/%s ' % (db_host, db_user, my.port_num, current_dir, backup_name)
-                os.system(backup_cmd)
-                my.backup_msg =  "Database 'sthpw' is backed up to [%s/%s]" %(current_dir, backup_name)
-                if my.backup_msg:
-                    print
-                    print my.backup_msg
+            #     backup_cmd = 'pg_dump -h %s -U %s -p %s --clean sthpw > %s/%s ' % (db_host, db_user, my.port_num, current_dir, backup_name)
+            #     os.system(backup_cmd)
+            #     my.backup_msg =  "Database 'sthpw' is backed up to [%s/%s]" %(current_dir, backup_name)
+            #     if my.backup_msg:
+            #         print
+            #         print my.backup_msg
 
 
-                os.system('dropdb -U postgres -p %s sthpw'%my.port_num)
-                my.check_db_exists('sthpw')
-            else:
-                raise InstallException("Database '%s' already exists. You can back it up first and then run the install again." % project_code)
+            #     os.system('dropdb -U postgres -p %s sthpw'%my.port_num)
+            #     my.check_db_exists('sthpw')
+            # else:
+            #     raise InstallException("Database '%s' already exists. You can back it up first and then run the install again." % project_code)
+        
+        return False
 
 
    
@@ -225,7 +228,7 @@ class Install:
 
         my.backup_msg = None
         my.non_default_install = False
-        project_code = "sthpw"
+        project_code = "hutch"
         project_type = "sthpw"
 
         my.print_header()
@@ -235,7 +238,7 @@ class Install:
             if install_db:
                 my.check_db_program()
 
-            	my.check_db_exists(project_code)
+            	install_db =  not my.check_db_exists(project_code)
             # install the necessary files to python directory
             my.install_to_python(install_defaults)
         
@@ -572,17 +575,7 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         my.tactic_src_dir = '%s/tactic_src_%s'%(tactic_base_dir, version)
         my.tactic_install_dir = '%s/tactic'%tactic_base_dir
 
-        my.tactic_site_dir = '%s/projects' %tactic_base_dir
-        
-        print "-"*20
-        print "DIRS..."
-        print my.tactic_base_dir
-        print my.tactic_data_base_dir
-        print my.tactic_install_dir
-        print my.tactic_site_dir
-        print " "
-        print "-"*20
-    
+        my.tactic_site_dir = '%s/projects' %tactic_base_dir    
 
         # set apache user for Linux
         if os.name != 'nt':
