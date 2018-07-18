@@ -230,14 +230,6 @@ class Install:
 
         my.print_header()
 
-        print "-"*20
-        print "DIRS..."
-        print my.tactic_base_dir
-        print my.tactic_data_base_dir
-        print my.tactic_install_dir
-        print my.tactic_site_dir
-        print " "
-        print "-"*20
         # verification
         try:
             if install_db:
@@ -581,6 +573,15 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         my.tactic_install_dir = '%s/tactic'%tactic_base_dir
 
         my.tactic_site_dir = '%s/projects' %tactic_base_dir
+        
+        print "-"*20
+        print "DIRS..."
+        print my.tactic_base_dir
+        print my.tactic_data_base_dir
+        print my.tactic_install_dir
+        print my.tactic_site_dir
+        print " "
+        print "-"*20
     
 
         # set apache user for Linux
