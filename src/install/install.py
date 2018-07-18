@@ -103,33 +103,14 @@ class Install:
         line = '\n'.join(lines)
         
         if line.find('connected to database') != -1:
-            print "Database '%s' already exists. Do you want to drop the database '%s' and continue?, If you choose 'y', It will be backed up to the current directory.  (y/n)" %(project_code, project_code)
-            print
-            answer = raw_input("(n) -> " )
-            if answer in ['y','Y']:
-                # can't read from config file at this point, just make these default assumptions
-                db_host = 'localhost'
-                db_user = 'postgres'
-                backup_name = 'sthpw_backup.sql'
-                current_dir = my.get_current_dir()
-                
-                backup_cmd = 'pg_dump -h %s -U %s -p %s --clean sthpw > %s/%s ' % (db_host, db_user, my.port_num, current_dir, backup_name)
-                os.system(backup_cmd)
-                my.backup_msg =  "Database 'sthpw' is backed up to [%s/%s]" %(current_dir, backup_name)
-                if my.backup_msg:
-                    print
-                    print my.backup_msg
-
-
-                os.system('dropdb -U postgres -p %s sthpw'%my.port_num)
-                my.check_db_exists('sthpw')
-            else:
-                raise InstallException("Database '%s' already exists. You can back it up first and then run the install again." % project_code)
+            print "Found database '%s'. Skipping database installation!" % (project_code)
+            return True
+        
+        return False
 
 
    
     def update_tactic_configs(my):
-        #tactic_conf_path = '%s/config/%s' %(my.tactic_site_dir, my.tactic_conf)
         tactic_conf_path = '%s/config/tactic-conf.xml' %(my.tactic_data_dir)
         f = open(tactic_conf_path, 'r')
         new_lines = []
@@ -185,26 +166,22 @@ class Install:
     def change_directory_ownership(my):
         import getpass
         if os.name != 'nt':
-            # script_user = getpass.getuser()
-            script_user = my.tactic_apache_user
-            print "----- SYSTEM USER -----"
-            print script_user
             print "Changing directory ownership of temp and data directories"
             # set the owner of tmp_dir and site_dir
             os.system('chown -R %s \"%s\"'\
-                %(script_user, my.tmp_dir))
+                %(my.tactic_apache_user, my.tmp_dir))
 
             os.system('chown -R %s \"%s\"'\
-                %(script_user, my.tactic_site_dir))
+                %(my.tactic_apache_user, my.tactic_site_dir))
 
             os.system('chown -R %s \"%s\"'\
-                %(script_user, my.tactic_data_dir))
+                %(my.tactic_apache_user, my.tactic_data_dir))
 
             os.system('chown -R %s \"%s/assets\"'\
-                %(script_user, my.tactic_base_dir))
+                %(my.tactic_apache_user, my.tactic_base_dir))
 
             os.system('chown -R %s \"%s\"'\
-                %(script_user, my.tactic_src_dir))
+                %(my.tactic_apache_user, my.tactic_src_dir))
 
     def install_win32_service(my):
         if os.name == 'nt':
@@ -228,18 +205,17 @@ class Install:
 
         my.backup_msg = None
         my.non_default_install = False
-        project_code = "sthpw"
+
+        project_code = "hutch"
         project_type = "sthpw"
 
         my.print_header()
 
-        # verification
         try:
             if install_db:
                 my.check_db_program()
-
-            	my.check_db_exists(project_code)
-            # install the necessary files to python directory
+                # do not install the db if the "hutch" project exists
+            	install_db =  not my.check_db_exists(project_code)
             my.install_to_python(install_defaults)
         
         except InstallException, e:
@@ -285,7 +261,7 @@ class Install:
 
 
         if install_db == False:
-            print "TACTIC setup successful.  Next, the TACTIC database needs to be configured."
+            print "TACTIC setup successful.  The database was not installed."
             return
 
         # dynamically load modules now that we know where they are
@@ -575,8 +551,7 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         my.tactic_src_dir = '%s/tactic_src_%s'%(tactic_base_dir, version)
         my.tactic_install_dir = '%s/tactic'%tactic_base_dir
 
-        my.tactic_site_dir = '%s/projects' %tactic_base_dir
-    
+        my.tactic_site_dir = '%s/projects' %tactic_base_dir    
 
         # set apache user for Linux
         if os.name != 'nt':
@@ -610,7 +585,6 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         f = open("%s/tactic_paths.py" % python_install_dir, "a")
         f.write("\n")
         f.write("TACTIC_INSTALL_DIR='%s'\n" % my.tactic_install_dir)
-        #f.write("TACTIC_SITE_DIR='%s'\n" % my.tactic_site_dir)
         f.write("TACTIC_SITE_DIR=''\n")
         f.write("TACTIC_DATA_DIR='%s'\n" % my.tactic_data_dir)
         f.write("\n")
@@ -627,61 +601,7 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
                 print "Permission error to create directories"
                 if os.name =='nt':
                     print "Try to run your cmd.exe as Administrator by Shift+right clicking on the Cmd.exe icon."
-                raise InstallException(e)
-
-        # set the tactic user
-        # Disabling until this actuall has meaning
-        """
-        if not os.name == "nt":
-            default_tactic_user = "apache"
-            default_tactic_group = "apache"
-            print
-            print "Please enter TACTIC user:"
-            print
-            my.tactic_user = raw_input("(%s) -> " % default_tactic_user)
-            if not my.tactic_user:
-                my.tactic_user = default_install_dir
-            my.tactic_group = my.tactic_user
-       
-
-
-
-        # copy all of the files from the template to the sites directory
-        for root, dirs, files in os.walk("template"):
-            root = root.replace("\\","/")
-
-            # ignore ".svn"
-            if root.find("/.svn") != -1:
-                continue
-
-            # create root directory
-            old = root
-            new = old.replace("template", my.tactic_site_dir)
-            dirname = os.path.dirname(new)
-            if not os.path.exists(dirname):
-                os.makedirs(dirname)
-
-            # go through each and copy
-            for file in files:
-                # ignore compiled python files
-                if file.endswith(".pyc") or file.startswith('.'):
-                    continue
-
-                old = "%s/%s" % (root, file)
-                new = old.replace("template", my.tactic_site_dir)
-
-                dirname = os.path.dirname(new)
-                if not os.path.exists(dirname):
-                    os.makedirs(dirname)
-
-                shutil.copyfile(old, new)
-                # FIXME: this does not work ... need uid and gid
-                #if not os.name == "nt":
-                #    os.chown(new,my.tactic_user,my.tactic_group)
-
-
-        """
-        
+                raise InstallException(e)        
 
         my.tactic_license = 'tactic-license.xml'
         if os.name != 'nt':
@@ -690,10 +610,6 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         else:
             my.apache_conf = 'tactic_win32.conf'
             my.tactic_conf = 'tactic_win32-conf.xml'
-
-
-
-
 
 
         try:
@@ -731,13 +647,6 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
             src_dir = my.tactic_install_dir
 
 
-
-
-
-
-        # prevent copying to itself
-        #print "SRC_DIR ", src_dir
-        #print "CUR ", current_dir
         if my.in_directory(src_dir, current_dir):
             raise InstallException("The install directory can't be inside the current directory.")
 
@@ -798,12 +707,6 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
             print
             raise
             
-        #try:
-        #    from Ft.Xml.XPath import Evaluate
-        #except ImportError:
-        #    print "ERROR: Cannot import Python 4Suite Xml module.  Please Install."
-        #    print
-        #    raise
         try:
             from lxml import etree
         except ImportError:
