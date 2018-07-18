@@ -185,10 +185,7 @@ class Install:
     def change_directory_ownership(my):
         import getpass
         if os.name != 'nt':
-            # script_user = getpass.getuser()
             script_user = my.tactic_apache_user
-            print "----- SYSTEM USER -----"
-            print script_user
             print "Changing directory ownership of temp and data directories"
             # set the owner of tmp_dir and site_dir
             os.system('chown -R %s \"%s\"'\
@@ -233,7 +230,14 @@ class Install:
 
         my.print_header()
 
-        # CHECKPOINT
+        print "-"*20
+        print "DIRS..."
+        print my.tactic_base_dir
+        print my.tactic_data_base_dir
+        print my.tactic_install_dir
+        print my.tactic_site_dir
+        print " "
+        print "-"*20
         # verification
         try:
             if install_db:
