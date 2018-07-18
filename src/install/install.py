@@ -103,6 +103,7 @@ class Install:
         line = '\n'.join(lines)
         
         if line.find('connected to database') != -1:
+            print "Found database '%s'. Will use that one!" % (project_code)
             return True
             # print "Database '%s' already exists. Do you want to drop the database '%s' and continue?, If you choose 'y', It will be backed up to the current directory.  (y/n)" %(project_code, project_code)
             # print
