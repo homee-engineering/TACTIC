@@ -19,11 +19,6 @@ import os.path
 
 PYTHON_EXE = 'python'
 
-def print_exception(ex):
-    template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-    message = template.format(type(ex).__name__, ex.args)
-    print(message)
-
 class InstallException(Exception):
     pass
 
@@ -642,11 +637,9 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
                 shutil.copytree(src, dst)
 
         except OSError, e:
-            print_exception(e)
-            pass
+            raise InstallException(e)
         except IOError, e:
-            print_exception(e)
-            pass
+            raise InstallException(e)
 
         if os.name != 'nt':
             src_dir = my.tactic_src_dir
@@ -657,6 +650,25 @@ VALUES ('shot_attr_change', 'Attribute Changes For Shots', 'email', 'prod/shot',
         if my.in_directory(src_dir, current_dir):
             raise InstallException("The install directory can't be inside the current directory.")
 
+        if src_dir != current_dir:
+
+            if os.path.exists(src_dir):
+                print
+                output = raw_input("Custom install directory [%s] already exists. It will be removed and copied over. Continue? (y/n) -> "%src_dir)
+                if output.lower() not in ['yes', 'y']:
+                    print "Installation has been stopped."
+                    sys.exit(2)
+                else:
+                    try:
+                        shutil.rmtree(src_dir)
+                    except OSError, e:
+                        print
+                        print "Errors in removing directories."
+                        raise InstallException(e)
+
+            print
+            print "Copying files to the install directory... It may take several minutes."
+            shutil.copytree(current_dir, src_dir)
 
         sys.path.append("%s/src"%src_dir)
 
